@@ -1,25 +1,21 @@
 # Python
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
 .env
 
 # dbt
-target/
-dbt_packages/
-logs/
+dbt/target/
+dbt/dbt_packages/
 
 # Airflow
-airflow.db
-logs/
+airflow/logs/
+
+# Docker volumes
+postgres_data/
 
 # OS
 .DS_Store
 Thumbs.db
 
-# VS Code
-.vscode/
-
 # Data files
-data/raw_csv/*.csv
+data/*.csv

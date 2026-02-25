@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+
+  postgres:
+    image: postgres:15
+    container_name: olist_postgres
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  airflow-webserver:
+    build: ./docker/airflow
+    container_name: olist_airflow_webserver
+    restart: always
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@olist_postgres:5432/${POSTGRES_DB}
+      - AIRFLOW__LOGGING__REMOTE_LOGGING=False
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/scripts:/opt/airflow/scripts
+      - ./data:/opt/airflow/datasets  
+      - ./airflow/logs:/opt/airflow/logs
+    ports:
+      - "8080:8080"
+    command: webserver
+
+  airflow-scheduler:
+    build: ./docker/airflow
+    container_name: olist_airflow_scheduler
+    restart: always
+    depends_on:
+      - airflow-webserver
+    env_file:
+      - .env
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@olist_postgres:5432/${POSTGRES_DB}
+      - AIRFLOW__LOGGING__REMOTE_LOGGING=False
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/scripts:/opt/airflow/scripts
+      - ./data:/opt/airflow/datasets
+      - ./airflow/logs:/opt/airflow/logs
+    command: scheduler
+
+  dbt:
+    build: ./docker/dbt
+    container_name: olist_dbt
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    volumes:
+      - ./dbt:/usr/app/dbt
+      - ./data:/usr/app/datasets
+    working_dir: /usr/app/dbt
+    command: sleep infinity
+
+volumes:
+  postgres_data:
