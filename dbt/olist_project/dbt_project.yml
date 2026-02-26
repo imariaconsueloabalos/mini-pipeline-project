@@ -36,3 +36,8 @@ models:
       +materialized: view
     staging:       # apply to all models in 'models/staging/' folder
       +materialized: view 
+    marts:
+      dim:
+        +materialized: view
+      facts:
+        +materialized: table
