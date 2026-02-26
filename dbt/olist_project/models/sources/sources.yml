@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  - name: olist_raw
+    database: "{{ env_var('POSTGRES_DB', 'olist_dw') }}"
+    schema: raw
+    tables:
+      - name: customers_dataset
+      - name: geolocation_dataset
+      - name: order_items_dataset
+      - name: order_payments_dataset
+      - name: order_reviews_dataset
+      - name: orders_dataset
+      - name: product_category_name_translation
+      - name: products_dataset
+      - name: sellers_dataset
