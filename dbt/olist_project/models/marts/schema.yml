@@ -1,0 +1,70 @@
+version: 2
+
+models:
+
+  - name: dim_date
+    description: "Date dimension table."
+    columns:
+      - name: date_key
+        description: "Primary key of the date dimension."
+        tests:
+          - unique
+          - not_null
+
+      - name: year
+        description: "Year component of the date."
+        tests:
+          - not_null
+
+      - name: month
+        description: "Month component of the date."
+        tests:
+          - not_null
+
+
+  - name: fact_sales
+    description: "Fact table containing transactional sales data."
+    columns:
+
+      - name: order_id
+        description: "Order identifier."
+        tests:
+          - not_null
+
+      - name: customer_key
+        description: "Foreign key to dim_customer."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customer')
+              field: customer_key
+
+      - name: product_key
+        description: "Foreign key to dim_product."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_product')
+              field: product_key
+
+      - name: seller_key
+        description: "Foreign key to dim_seller."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_seller')
+              field: seller_key
+
+      - name: date_key
+        description: "Foreign key to dim_date."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+
+      - name: payment_allocated
+        description: "Total payment value for the order. NOTE: Some delivered orders in the source dataset have no payment record, resulting in NULLs in this column. These rows are retained for data transparency."
+        
+        # tests:
+        #   - not_null
