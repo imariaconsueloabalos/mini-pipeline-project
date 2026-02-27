@@ -25,11 +25,13 @@ services:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@olist_postgres:5432/${POSTGRES_DB}
       - AIRFLOW__LOGGING__REMOTE_LOGGING=False
+      - DBT_PROFILES_DIR=/opt/airflow/dbt # Added profile path
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/scripts:/opt/airflow/scripts
       - ./data:/opt/airflow/datasets  
       - ./airflow/logs:/opt/airflow/logs
+      - ./dbt/olist_project:/opt/airflow/dbt # Shared dbt volume
     ports:
       - "8080:8080"
     command: webserver
@@ -46,11 +48,13 @@ services:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@olist_postgres:5432/${POSTGRES_DB}
       - AIRFLOW__LOGGING__REMOTE_LOGGING=False
+      - DBT_PROFILES_DIR=/opt/airflow/dbt # Added profile path
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/scripts:/opt/airflow/scripts
       - ./data:/opt/airflow/datasets
       - ./airflow/logs:/opt/airflow/logs
+      - ./dbt/olist_project:/opt/airflow/dbt # Shared dbt volume
     command: scheduler
 
   dbt:
