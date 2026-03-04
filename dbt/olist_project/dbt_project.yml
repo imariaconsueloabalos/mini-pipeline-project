@@ -38,6 +38,6 @@ models:
       +materialized: view 
     marts:
       dim:
-        +materialized: view
+        +materialized: table
       facts:
         +materialized: table
