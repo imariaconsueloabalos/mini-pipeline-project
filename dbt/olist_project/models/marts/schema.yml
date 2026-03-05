@@ -2,11 +2,60 @@ version: 2
 
 models:
 
+  # ===============================
+  # DIMENSION TABLES
+  # ===============================
+
+  - name: dim_customer
+    description: "Customer dimension table containing unique customer information."
+    columns:
+      - name: customer_key
+        description: "Surrogate primary key for customer."
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_id
+        description: "Original customer identifier from source system."
+        tests:
+          - not_null
+
+
+  - name: dim_product
+    description: "Product dimension table containing product details."
+    columns:
+      - name: product_key
+        description: "Surrogate primary key for product."
+        tests:
+          - unique
+          - not_null
+
+      - name: product_id
+        description: "Original product identifier from source system."
+        tests:
+          - not_null
+
+
+  - name: dim_seller
+    description: "Seller dimension table containing seller information."
+    columns:
+      - name: seller_key
+        description: "Surrogate primary key for seller."
+        tests:
+          - unique
+          - not_null
+
+      - name: seller_id
+        description: "Original seller identifier from source system."
+        tests:
+          - not_null
+
+
   - name: dim_date
-    description: "Date dimension table."
+    description: "Date dimension table used for time-based analysis."
     columns:
       - name: date_key
-        description: "Primary key of the date dimension."
+        description: "Surrogate primary key for date."
         tests:
           - unique
           - not_null
@@ -22,8 +71,21 @@ models:
           - not_null
 
 
+  # ===============================
+  # FACT TABLE
+  # ===============================
+
   - name: fact_sales
-    description: "Fact table containing transactional sales data."
+    description: |
+      Fact table containing transactional sales data.
+      Grain: One row per order item.
+
+      Note:
+      Three delivered orders in the source dataset do not have
+      corresponding records in order_payments.
+      As a result, payment_allocated may contain NULL values.
+      These rows are intentionally retained for transparency.
+
     columns:
 
       - name: order_id
@@ -32,39 +94,44 @@ models:
           - not_null
 
       - name: customer_key
-        description: "Foreign key to dim_customer."
+        description: "Foreign key referencing dim_customer."
         tests:
           - not_null
           - relationships:
-              to: ref('dim_customer')
-              field: customer_key
+              arguments:
+                to: ref('dim_customer')
+                field: customer_key
 
       - name: product_key
-        description: "Foreign key to dim_product."
+        description: "Foreign key referencing dim_product."
         tests:
           - not_null
           - relationships:
-              to: ref('dim_product')
-              field: product_key
+              arguments:
+                to: ref('dim_product')
+                field: product_key
 
       - name: seller_key
-        description: "Foreign key to dim_seller."
+        description: "Foreign key referencing dim_seller."
         tests:
           - not_null
           - relationships:
-              to: ref('dim_seller')
-              field: seller_key
+              arguments:
+                to: ref('dim_seller')
+                field: seller_key
 
       - name: date_key
-        description: "Foreign key to dim_date."
+        description: "Foreign key referencing dim_date."
         tests:
           - not_null
           - relationships:
-              to: ref('dim_date')
-              field: date_key
+              arguments:
+                to: ref('dim_date')
+                field: date_key
 
       - name: payment_allocated
-        description: "Total payment value for the order. NOTE: Some delivered orders in the source dataset have no payment record, resulting in NULLs in this column. These rows are retained for data transparency."
-        
-        # tests:
-        #   - not_null
+        description: |
+          Total payment value allocated to the order item.
+          May contain NULL values for 3 delivered orders
+          that have no corresponding record in the source
+          order_payments table.
