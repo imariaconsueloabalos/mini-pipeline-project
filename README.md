@@ -138,6 +138,32 @@ Each order item receives a share of the total payment proportional to its price 
 
 ---
 
+## 🚀 How to Run
+
+### Prerequisites
+- Docker & Docker Compose installed
+- Olist CSV files placed in `data/raw/` (named `olist_*.csv`)
+- `.env` file configured with your PostgreSQL credentials
+
+### 1. Start all services
+```bash
+docker-compose up -d
+```
+
+### 2. Access Airflow UI
+```
+http://localhost:8080
+```
+Trigger the `olist_final_pipeline` DAG manually or let it run on its `@daily` schedule.
+
+### 3. Monitor task execution
+In the Airflow UI, click into the DAG and verify all 4 tasks turn green:
+```
+run_ingestion → dbt_seed → dbt_run_all_models → dbt_test
+```
+
+---
+
 ## Challenges Overcome
 
 1. **Windows Volume Compatibility** — dbt logs and compiled files redirected to `/tmp/dbt/` to bypass Windows Docker volume write restrictions using `--log-path` and `--target-path` flags
